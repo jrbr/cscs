@@ -13,12 +13,12 @@ _Your Name_
 ### Goal 
 *****
  
-_Provide a short, 1-3 sentence description of the goal of your model_
+For this project I will be constructing a neural network using agent based modeling. I am doing this to become more familiar with the underlying mechanisms of neural networks and to examine how different stuctural make-ups and design choices affect the effectiveness of the learning process. This will all be done by training and testing the neural network on classifying sentences into different categories.
 
 &nbsp;  
 ### Justification
 ****
-_Short explanation on why you are using ABM_
+I am using agent based modeling for this project because each I believe it is a very intuitive way to create the network in which each interacting neuron has very simple behaviors. These neurons will be simply deciding whether to fire or not based on the input it recieves from the neuron around it, and each neuron does this using the same criteria. This interaction between the neurons and simple decisions of the neurons make this ripe for Agent Based- Modeling.
 
 &nbsp; 
 ### Main Micro-level Processes and Macro-level Dynamics of Interest
