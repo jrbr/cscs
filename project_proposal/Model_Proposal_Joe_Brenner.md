@@ -1,6 +1,6 @@
-# Model Proposal for _[Project Name]_
+# Model Proposal for _Simple Multi-layered Neural Network_
 
-_Your Name_
+_Joe Brenner_
 
 * Course ID: CMPLXSYS 530,
 * Course Title: Computer Modeling of Complex Systems
