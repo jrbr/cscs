@@ -18,13 +18,13 @@ For this project I will be constructing a neural network using agent based model
 &nbsp;  
 ### Justification
 ****
-I am using agent based modeling for this project because each I believe it is a very intuitive way to create the network in which each interacting neuron has very simple behaviors. These neurons will be simply deciding whether to fire or not based on the input it recieves from the neuron around it, and each neuron does this using the same criteria. This interaction between the neurons and simple decisions of the neurons make this ripe for Agent Based- Modeling.
+I am using agent based modeling for this project because each I believe it is a very intuitive way to create the network in which each interacting neuron has very simple behaviors. These neurons will be simply deciding whether how strong its output should be based on the input it recieves from the neurons around it, and each neuron does this using the same criteria. This interaction between the neurons and simple decisions of the neurons make this ripe for Agent Based Modeling.
 
 &nbsp; 
 ### Main Micro-level Processes and Macro-level Dynamics of Interest
 ****
 
-_Short overview of the key processes and/or relationships you are interested in using your model to explore. Will likely be something regarding emergent behavior that arises from individual interactions_
+A properly implemented neural network will "learn" how to recognize patterns and classify data. This is done by training the network with specific training data, and after the training is done it should be able to classify similar data, even if it has not seen that exact before. The accuracy and efficiency of this learning is the process that I am interested in studying. I am looking to examine how the structure of the network and the nature of the training data will affect this learning process. 
 
 &nbsp; 
 
@@ -33,12 +33,17 @@ _Short overview of the key processes and/or relationships you are interested in 
 ****
 &nbsp; 
 ### 1) Environment
-_Description of the environment in your model. Things to specify *if they apply*:_
+The environment in this model is fairly limited. It consists of the groupings of agents which separates them into layers, and whether the network is being trained or tested. It will also contain the rate at which the connection between neurons are allowed to change.
 
-* _Boundary conditions (e.g. wrapping, infinite, etc.)_
-* _Dimensionality (e.g. 1D, 2D, etc.)_
 * _List of environment-owned variables (e.g. resources, states, roughness)_
+
+state
+layer_size
+num_layers
+learning_rate
 * _List of environment-owned methods/procedures (e.g. resource production, state change, etc.)_
+set_training
+set_testing
 
 
 ```python
@@ -52,10 +57,25 @@ _Description of the environment in your model. Things to specify *if they apply*
 
 ### 2) Agents
  
- _Description of the "agents" in the system. Things to specify *if they apply*:_
+ The agents in this model are the individual neurons. There will be 3 different types of neurons considered- input, hidden, and output neurons. Hidden and output neurons will contain a list of neurons that they receive input from and and the weight of these connections. They will be arranged in groups called layers and each neuron in a given layer will receive input from every neuron in the previous layer. The output neurons are the final layer and there output will be considered the output of the whole system. The input neurons are the most unique. Their output will be determined by the input data, so they will not rely on any previous activation values.
  
-* _List of agent-owned variables (e.g. age, heading, ID, etc.)_
-* _List of agent-owned methods/procedures (e.g. move, consume, reproduce, die, etc.)_
+ 
+* _List of agent-owned variables
+
+ input_neurons (list)
+ input_weights (list)
+ summed_input (double)
+ output (double)
+ error (double)
+
+* _List of agent-owned methods/procedures
+
+activate
+sum_inputs
+get_output
+update_weight
+calc_error
+
 
 
 ```python
@@ -71,15 +91,31 @@ _Description of the environment in your model. Things to specify *if they apply*
  
 **_Interaction Topology_**
 
-_Description of the topology of who interacts with whom in the system. Perfectly mixed? Spatial proximity? Along a network? CA neighborhood?_
+Each agent in the input layer will be set by the data and will interact with the agents in the first hidden layer. All agents in the hidden layers will recieve input from every neuron in the previous layer and will send their output to neurons in the following layer. The final layer of neurons will report their output, and this will be compared to the expected output. This process is called forward propagation. While the model is in the training state, this error will then be used to adjust the weight the connections between neurons. The error of each neuron is dependent on the neurons in the layers succeeding them, so this information is sent in the opposite directon as it was in forward propagation and is called back propagation. 
  
 **_Action Sequence_**
 
-_What does an agent, cell, etc. do on a given turn? Provide a step-by-step description of what happens on a given turn for each part of your model_
 
-1. Step 1
-2. Step 2
-3. Etc...
+Forward Propagation
+
+1. Agents find the weighted activation value of each neuron in the previous layer by multiplying the neuron's activation value by the weight of the connection between the two.
+2. These weighted activation values are summed together
+3. This sum is then put through a sigmoid function to determine the activation value of the neuron, which is then set and ready to be accessed by neurons in the following layer
+
+Backward Propagation for output neurons
+
+1. Calculate the squared difference of the expected value to the neuron's output
+2. Calculate the derivative of the neuron's output
+3. Multiply this difference and the derivative find the error introduced by this neuron
+4. update the weight of the neuron's input connections using the formula weight = weight + learning_rate * error * input
+
+Backward Propagation for hidden neurons
+
+1. Calculate the weighted error of each neuron connected to this one in the succeeding row by multiplying its error by the weight of the connection between the neurons
+2. Sum these errors together
+2. Calculate the derivative of the neuron's output
+3. Multiply this sum and the derivative to find the error introduced by this neuron
+4. update the weight of the neuron's input connections using the formula weight = weight + learning_rate * error * input
 
 &nbsp; 
 ### 4) Model Parameters and Initialization
