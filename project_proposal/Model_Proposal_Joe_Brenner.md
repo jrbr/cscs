@@ -35,13 +35,12 @@ A properly implemented neural network will "learn" how to recognize patterns and
 ### 1) Environment
 The environment in this model is fairly limited. It consists of the groupings of agents which separates them into layers, and whether the network is being trained or tested. It will also contain the rate at which the connection between neurons are allowed to change.
 
-* _List of environment-owned variables (e.g. resources, states, roughness)_
-
+* _List of environment-owned variables
 state
 layer_size
 num_layers
 learning_rate
-* _List of environment-owned methods/procedures (e.g. resource production, state change, etc.)_
+* _List of environment-owned methods/procedures
 set_training
 set_testing
 
@@ -61,7 +60,6 @@ set_testing
  
  
 * _List of agent-owned variables
-
  input_neurons (list)
  input_weights (list)
  summed_input (double)
@@ -69,7 +67,6 @@ set_testing
  error (double)
 
 * _List of agent-owned methods/procedures
-
 activate
 sum_inputs
 get_output
