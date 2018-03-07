@@ -60,11 +60,11 @@ set_testing
  
  
 * _List of agent-owned variables
- input_neurons (list)
- input_weights (list)
- summed_input (double)
- output (double)
- error (double)
+* input_neurons (list)
+* input_weights (list)
+* summed_input (double)
+* output (double)
+* error (double)
 
 * _List of agent-owned methods/procedures
 activate
