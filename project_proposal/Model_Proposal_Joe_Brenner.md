@@ -24,7 +24,9 @@ I am using agent based modeling for this project because each I believe it is a 
 ### Main Micro-level Processes and Macro-level Dynamics of Interest
 ****
 
-A properly implemented neural network will "learn" how to recognize patterns and classify data. This is done by training the network with specific training data, and after the training is done it should be able to classify similar data, even if it has not seen that exact before. The accuracy and efficiency of this learning is the process that I am interested in studying. I am looking to examine how the structure of the network and the nature of the training data will affect this learning process. 
+A properly implemented neural network will "learn" how to recognize patterns and classify data. This is done by training the network with specific training data using alternating cycles of forward propagation, in which the network is given data and attempts to classify it, and back propagation, in which the weights of neuron connections are updated based on the error between the expected value and the actual output of the network from the forward propagation. After the training is done the network should be able to classify similar data, even if it has not seen that exact before. The accuracy and efficiency of this learning is the process that I am interested in studying.
+
+Specifically, I am looking to examine how the structure of the network and certain parameters such as learning rate or the number of training passes will affect this learning. Example of these effects could be undertraining, in which the network does not learn how to classify the training data let alone the testing data, or overtraining, which prevents the network from classifying any data that deviates at all from the training data.
 
 &nbsp; 
 
@@ -36,12 +38,11 @@ A properly implemented neural network will "learn" how to recognize patterns and
 The environment in this model is fairly limited. It consists of the groupings of agents which separates them into layers, and whether the network is being trained or tested. It will also contain the rate at which the connection between neurons are allowed to change.
 
 * _List of environment-owned variables_
-	* state
-	* layers
-	* learning_rate
+	* state - whether the network is training or being tested
+	* layers - number of hidden layers
 * _List of environment-owned methods/procedures_
-	* set_training
-	* set_testing
+	* set_training - set the environment to a training state, where the network performs both forward and back propgataion
+	* set_testing - set the environment to a testing state, where the network performs only forward propagation
 
 
 ```python
@@ -59,17 +60,17 @@ The environment in this model is fairly limited. It consists of the groupings of
  
  
 * _List of agent-owned variables_
-	* input_neurons (list)
-	* input_weights (list)
-	* summed_input (double)
-	* output (double)
-	* error (double)
+	* input_neurons  - a list of neurons that give input to this neuron
+	* input_weights - a list of the connection weights between the neurons listed in input_neurons and this neuron
+	* summed_input - the total sum of all the weighted inputs to this neuron
+	* output - the activation value of this neuron
+	* error - The measure of error that this neuron contributed to an incorrect answer, used for back-propagation
 * _List of agent-owned methods/procedures_
-	* activate
-	* sum_inputs
-	* get_output
-	* update_weight
-	* calc_error
+	* activate - take summed_input and use it to find the activation value of this neuron
+	* sum_inputs - calculate summed_input
+	* get_output - report the output of this neuron
+	* calc_error - calculates the error of this neuron
+	* update_weight - updaates the weight of this neuron's connections
 
 
 
@@ -117,19 +118,42 @@ Backward Propagation for hidden neurons
 ### 4) Model Parameters and Initialization
 
 _Describe and list any global parameters you will be applying in your model._
+	* learning_rate - the rate at which the connections are allowed to change. Higher rates mean that the connections will make more drastic adjustments in each cycle while lower rates mean they will make smaller.
+	* num_epochs - An epoch refers to when the network is exposed to each item in the training set exactly once. This is the number of times that the network will be exposed to each training data point during the training phase
+	* training_data - This will contain the data that the network is trained on.
+	* testing_data - this will contain the data that the network is tested on
 
 _Describe how your model will be initialized_
+	*
+
 
 _Provide a high level, step-by-step description of your schedule during each "tick" of the model_
-
+	* Training
+		1. Set the input neurons based on the given data for this turn
+		2. Forward propagate to get the network's output
+		3. Compare the network's output to the expected output
+		4. If they are different, back propagate the error and adjust the weights
+	* Testing
+		1. Set the input neurons based on the given data for this turn
+		2. Forward propagate to get the network's output
+		3. Compare the network's output to the expected output and record whether they match
 &nbsp; 
 
 ### 5) Assessment and Outcome Measures
 
 _What quantitative metrics and/or qualitative features will you use to assess your model outcomes?_
+* percentage of correctly classified training data points
+* percentage of correctly classified testing data points
+
+By examining these two outcomes, I will be able to determine how well the network has been trained in its current configuration. By testing it separately on both testing and training data I can determine if the network has been overtrained or undertrained. A perfectly trained network would get a very high percentage correct in both tests, an undertrained network will have a much lower percentage correct for both, an overtrained network would be have a very high percentage on the training data and a very low percentage on the testing data.
 
 &nbsp; 
 
 ### 6) Parameter Sweep
 
 _What parameters are you most interested in sweeping through? What value ranges do you expect to look at for your analysis?_
+
+* number of hidden layers - I will sweep between having 0 layers and 10 layers (a network with 0 hidden layers would simply have the input neurons connected directly to the output neurons)
+* number of neurons per layer - I will sweep between having 1 neuron and 10 neurons per layer
+* learning rate for the connections - This value can range from 0 to 1, I will sweep through this in increments of .01
+* number of epochs - This value will range from 1 to 100 either in intervals of 1 or 2
