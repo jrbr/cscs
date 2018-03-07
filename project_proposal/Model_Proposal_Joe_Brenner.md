@@ -118,25 +118,25 @@ Backward Propagation for hidden neurons
 ### 4) Model Parameters and Initialization
 
 _Describe and list any global parameters you will be applying in your model._
-	* learning_rate - the rate at which the connections are allowed to change. Higher rates mean that the connections will make more drastic adjustments in each cycle while lower rates mean they will make smaller.
-	* num_epochs - An epoch refers to when the network is exposed to each item in the training set exactly once. This is the number of times that the network will be exposed to each training data point during the training phase
-	* training_data - This will contain the data that the network is trained on.
-	* testing_data - this will contain the data that the network is tested on
+* learning_rate - the rate at which the connections are allowed to change. Higher rates mean that the connections will make more drastic adjustments in each cycle while lower rates mean they will make smaller.
+* num_epochs - An epoch refers to when the network is exposed to each item in the training set exactly once. This is the number of times that the network will be exposed to each training data point during the training phase
+* training_data - This will contain the data that the network is trained on.
+* testing_data - this will contain the data that the network is tested on
 
 _Describe how your model will be initialized_
-	*
+* The model network will be constructed with the given number of layers and neurons per layer. The number of input neurons will be determined by the exact format of the data that is being classified, and the number of output neurons will be determined by the format of the output. The connection weights between all neurons will initially be random.
 
 
 _Provide a high level, step-by-step description of your schedule during each "tick" of the model_
-	* Training
-		1. Set the input neurons based on the given data for this turn
-		2. Forward propagate to get the network's output
-		3. Compare the network's output to the expected output
-		4. If they are different, back propagate the error and adjust the weights
-	* Testing
-		1. Set the input neurons based on the given data for this turn
-		2. Forward propagate to get the network's output
-		3. Compare the network's output to the expected output and record whether they match
+* Training
+	1. Set the input neurons based on the given data for this turn
+	2. Forward propagate to get the network's output
+	3. Compare the network's output to the expected output
+	4. If they are different, back propagate the error and adjust the weights
+* Testing
+	1. Set the input neurons based on the given data for this turn
+	2. Forward propagate to get the network's output
+	3. Compare the network's output to the expected output and record whether they match
 &nbsp; 
 
 ### 5) Assessment and Outcome Measures
