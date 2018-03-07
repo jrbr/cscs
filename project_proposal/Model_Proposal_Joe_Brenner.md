@@ -35,14 +35,16 @@ A properly implemented neural network will "learn" how to recognize patterns and
 ### 1) Environment
 The environment in this model is fairly limited. It consists of the groupings of agents which separates them into layers, and whether the network is being trained or tested. It will also contain the rate at which the connection between neurons are allowed to change.
 
-* _List of environment-owned variables
-state
-layer_size
-num_layers
-learning_rate
-* _List of environment-owned methods/procedures
-set_training
-set_testing
+_List of environment-owned variables
+*state
+*layer_size
+*num_layers
+*learning_rate
+
+
+_List of environment-owned methods/procedures
+*set_training
+*set_testing
 
 
 ```python
@@ -59,19 +61,19 @@ set_testing
  The agents in this model are the individual neurons. There will be 3 different types of neurons considered- input, hidden, and output neurons. Hidden and output neurons will contain a list of neurons that they receive input from and and the weight of these connections. They will be arranged in groups called layers and each neuron in a given layer will receive input from every neuron in the previous layer. The output neurons are the final layer and there output will be considered the output of the whole system. The input neurons are the most unique. Their output will be determined by the input data, so they will not rely on any previous activation values.
  
  
-* _List of agent-owned variables
-* input_neurons (list)
-* input_weights (list)
-* summed_input (double)
-* output (double)
-* error (double)
+ _List of agent-owned variables
+*input_neurons (list)
+*input_weights (list)
+*summed_input (double)
+*output (double)
+*error (double)
 
-* _List of agent-owned methods/procedures
-activate
-sum_inputs
-get_output
-update_weight
-calc_error
+_List of agent-owned methods/procedures
+*activate
+*sum_inputs
+*get_output
+*update_weight
+*calc_error
 
 
 
