@@ -38,18 +38,28 @@ Specifically, I am looking to examine how the structure of the network and certa
 The environment in this model is fairly limited. It consists of the groupings of agents which separates them into layers, and whether the network is being trained or tested. It will also contain the rate at which the connection between neurons are allowed to change.
 
 * _List of environment-owned variables_
-	* state - whether the network is training or being tested
-	* layers - number of hidden layers
-* _List of environment-owned methods/procedures_
-	* set_training - set the environment to a training state, where the network performs both forward and back propgataion
-	* set_testing - set the environment to a testing state, where the network performs only forward propagation
+	* training_state - whether the network is training or being tested
+	* num_layers - number of hidden layers
+	* layer_size - number of neurons in layer
+	* learning_rate - the rate at which the connections are allowed to change. Higher rates mean that the connections will make more drastic adjustments in each cycle while lower rates mean they will make smaller.
+	* total_epochs - An epoch refers to when the network is exposed to each item in the training set exactly once. This is the number of times that the network will be exposed to each training data point during the training phase
+	* epochs_trained - the number of epochs already completed
+	* network - a list of lists containing the neurons
 
 
 ```python
-# Include first pass of the code you are thinking of using to construct your environment
-# This may be a set of "patches-own" variables and a command in the "setup" procedure, a list, an array, or Class constructor
-# Feel free to include any patch methods/procedures you have. Filling in with pseudocode is ok! 
-# NOTE: If using Netlogo, remove "python" from the markdown at the top of this section to get a generic code block
+class env:
+
+    def __init__(self, layers_in, layer_size_in, rate_in, epochs_in):
+        self.num_layers = layers_in
+        self.layer_size = layer_size_in
+        self.learning_rate = rate_in
+        self.total_epochs = epochs_in
+        self.epochs_trained = 0
+        self.training_state = epochs_trained < total_epochs
+
+        #create a list of lists that initializes the right layout of neurons
+
 ```
 
 &nbsp; 
@@ -60,7 +70,7 @@ The environment in this model is fairly limited. It consists of the groupings of
  
  
 * _List of agent-owned variables_
-	* input_neurons  - a list of neurons that give input to this neuron
+	* layer - the number of the layer the neuron is contained in
 	* input_weights - a list of the connection weights between the neurons listed in input_neurons and this neuron
 	* summed_input - the total sum of all the weighted inputs to this neuron
 	* output - the activation value of this neuron
@@ -68,17 +78,38 @@ The environment in this model is fairly limited. It consists of the groupings of
 * _List of agent-owned methods/procedures_
 	* activate - take summed_input and use it to find the activation value of this neuron
 	* sum_inputs - calculate summed_input
-	* get_output - report the output of this neuron
 	* calc_error - calculates the error of this neuron
-	* update_weight - updaates the weight of this neuron's connections
+	* update_weights - updates the weight of this neuron's connections
 
 
 
 ```python
-# Include first pass of the code you are thinking of using to construct your agents
-# This may be a set of "turtle-own" variables and a command in the "setup" procedure, a list, an array, or Class constructor
-# Feel free to include any agent methods/procedures you have so far. Filling in with pseudocode is ok! 
-# NOTE: If using Netlogo, remove "python" from the markdown at the top of this section to get a generic code block
+class neuron:
+
+    def __init__(self, layer_in, layer_size):
+        self.layer = layers_in
+        self.input_weights = []
+        for i in range(0, layer_size):
+        	#append values to input_weights
+        	#initialize them to random values
+        self.summed_input = 0
+        self.output = 0
+        self.error = 0
+
+     def activate():
+     	sum_inputs()
+     	output = #put summed inputs through sigmoid activation 1/(1+e^summed_input)
+
+
+     def sum_inputs():
+     	summed_inputs = 0
+     	for i in range(0, len(input_weights)):
+     		summed_inputs += input_weights * #get output of ith neuron in previous level
+
+     def update_weights():
+     	for i in range(0, len(input_weights)):
+     		input_weights += learning_rate * error * #get output of ith neuron in previous level
+        
 ```
 
 &nbsp; 
@@ -118,8 +149,6 @@ Backward Propagation for hidden neurons
 ### 4) Model Parameters and Initialization
 
 _Describe and list any global parameters you will be applying in your model._
-* learning_rate - the rate at which the connections are allowed to change. Higher rates mean that the connections will make more drastic adjustments in each cycle while lower rates mean they will make smaller.
-* num_epochs - An epoch refers to when the network is exposed to each item in the training set exactly once. This is the number of times that the network will be exposed to each training data point during the training phase
 * training_data - This will contain the data that the network is trained on.
 * testing_data - this will contain the data that the network is tested on
 
