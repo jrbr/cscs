@@ -16,6 +16,13 @@ _Joe Brenner_
 For this project I will be constructing a neural network using agent based modeling. I am doing this to become more familiar with the underlying mechanisms of neural networks and to examine how different stuctural make-ups and design choices affect the effectiveness of the learning process. This will all be done by training and testing the neural network on classifying sentences into different categories.
 
 &nbsp;  
+
+__*LS COMMENTS:*__
+*Great use for this course project - hope it ends up being very informative! I was wondering a bit about the classification task. What exactly will you be looking to be able to do with sentences in terms of how they get categorized? Also, do you have a specific training set in mind?*
+
+*Overall though, super solid setup, so not too many comments or questions at this time. If there is anything you are unsure about or would specifically like feedback on, however, let me know!*
+
+&nbsp;  
 ### Justification
 ****
 I am using agent based modeling for this project because each I believe it is a very intuitive way to create the network in which each interacting neuron has very simple behaviors. These neurons will be simply deciding whether how strong its output should be based on the input it recieves from the neurons around it, and each neuron does this using the same criteria. This interaction between the neurons and simple decisions of the neurons make this ripe for Agent Based Modeling.
@@ -45,6 +52,9 @@ The environment in this model is fairly limited. It consists of the groupings of
 	* total_epochs - An epoch refers to when the network is exposed to each item in the training set exactly once. This is the number of times that the network will be exposed to each training data point during the training phase
 	* epochs_trained - the number of epochs already completed
 	* network - a list of lists containing the neurons
+
+__*LS COMMENTS:*__
+*I would say the above act more like global variables than environmental variables. In terms of environment, I would say the closest you might have here would be the collection of sentences the network is being exposed to. It isn't necessarily useful to think about every ABM having an environment, however, so you may not really need to wedge that in here.*
 
 
 ```python
