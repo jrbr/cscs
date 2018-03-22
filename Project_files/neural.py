@@ -58,6 +58,30 @@ def init_network(num_layers, num_in_layer, numInputs, num_outputs):
 def set_inputs():
 	global net, numInputs
 
+	set_inputs_binary_pair()
+
+
+
+def set_inputs_binary_pair():
+	global net, numInputs
+
+	if numInputs == 2:
+		net.node[0]['output'] = math.ceil(random.random()*2 - 1)
+		net.node[1]['output'] = math.ceil(random.random()*2 - 1)
+	else:
+		print "not valid"
+
+def run_epoch():
+	global net, idealOutput, totalNodes, numOutputs
+	for i in range(0,2):
+		for j in range(0,2):
+			net.node[0]['output'] = i
+			net.node[1]['output'] = j
+			set_ideal_output()
+			forward_prop()
+			back_prop()	
+			#print idealOutput
+
 
 def forward_prop():
 	global numInputs, net
@@ -85,39 +109,61 @@ def sum_inputs(node):
 
 def back_prop():
 	global net, numInputs
+
+	#set_ideal_output
+
 	for i in reversed(range(numInputs, len(net.nodes()))):
 		calc_error(i)
 
-	for i in range(numInputs, len(net.nodes()))
+	for i in range(numInputs, len(net.nodes())):
 		update_weights(i)
 
 
 def calc_error(node):
-	global net, idealOutput
+	global net, idealOutput, outputNodes
 
 	net.node[node]['error'] = 0
 
 	if(net.node[node]['type'] == "output"):
-		net.node[node]['error'] = .5 * pow(idealOutput[node] - net.node[node]['output'], 2)
-		net.node[node]['delta'] = net.node[node]['error'] * calc_deriv(net.node[node]['error'])
+		net.node[node]['error'] = -(idealOutput[node] - net.node[node]['output'])
+		net.node[node]['delta'] = net.node[node]['error'] * calc_deriv(net.node[node]['output'])
 
 	elif(net.node[node]['type'] == "hidden"):
-		num, edge in net.adj[node].iteritems():
-		if(num > node):
-			net.node[node]['error'] += edge['weight'] * net.node[num]['delta']
-		net.node[node]['delta'] = net.node[node]['error'] * calc_deriv(net.node[node]['error'])
+		for outNode, edge in net.adj[node].iteritems():
+			if(outNode > node):
+				net.node[node]['error'] += edge['weight'] * net.node[outNode]['delta']
+		net.node[node]['delta'] = net.node[node]['error'] * calc_deriv(net.node[node]['output'])
 
-def calc_deric(value):
+def calc_deriv(value):
 	return value * (1.0 - value)
 
 def update_weights(node):
 	global net, learning_rate
-	for num, edge in net.adj[node].iteritems():
-		if(num < node):
-			edge['weight'] = edge['weight'] + learning_rate * g.node[num]['delta'] * g.node[num]['output']
+	for inNode, edge in net.adj[node].iteritems():
+		if(inNode < node):
+			edge['weight'] = edge['weight'] - learning_rate * net.node[node]['delta'] * net.node[inNode]['output']
 
+def set_ideal_output():
+	global net, idealOutput, totalNodes, numOutputs
 
-
+	if net.node[0]['output'] == 1 and net.node[1]['output'] == 1:
+		idealOutput[totalNodes - numOutputs] = 1
+	else:
+		idealOutput[totalNodes - numOutputs] = 0
+	#print idealOutput
+def test_epoch():
+	global net, idealOutput, totalNodes, numOutputs
+	for i in range(0,2):
+		for j in range(0,2):
+			net.node[0]['output'] = i
+			net.node[1]['output'] = j
+			set_ideal_output()
+			forward_prop()
+			print("cycle: {}".format(i))
+			print("input: {} {}".format(net.node[0]['output'], net.node[1]['output']))
+			print("expected: {}".format(idealOutput[totalNodes - numOutputs]))
+			#print idealOutput
+			print("actual: {}".format(net.node[totalNodes - 1]['output']))	
 
 
 
@@ -132,20 +178,56 @@ def draw_network(g, layers, inLay, numInputs, numOutputs):
 
 
 
-num_layers = 3
-num_in_layer = 5
-numInputs = 5
-numOutputs = 2
+num_layers = 2
+num_in_layer = 2
+numInputs = 2
+numOutputs = 1
 totalNodes = numInputs + numOutputs + num_layers * num_in_layer
+outputNodes = list(range(totalNodes - numOutputs, totalNodes))
+idealOutput = {}
+learning_rate = 1
+numEpochs = 25000
 
 net = nx.Graph()
 init_network(num_layers, num_in_layer, numInputs, numOutputs)
 
 
-forward_prop()
 
-for i in range(0, len(net.nodes())):
-	print net.node[i]
+
+
+#print net.node[totalNodes - 1]['output']
+
+print "pre-training predictions"
+
+test_epoch()
+
+print "training"
+
+
+for i in range(1, numEpochs):
+
+	run_epoch()
+
+	if i % (numEpochs / 10) == 0:
+		print("{}% complete".format(1.0 * i / numEpochs * 100.0))
+
+
+	'''
+	if i % 1000 == 0:
+		
+		print("cycle: {}".format(i))
+		print("input: {} {}".format(net.node[0]['output'], net.node[1]['output']))
+		print("expected: {}".format(idealOutput[totalNodes - numOutputs]))
+		#print idealOutput
+		print("actual: {}".format(net.node[totalNodes - 1]['output']))
+		#print("expected: {}\nactual:{}\n".format(idealOutput[totalNodes - numOutputs], net.node[totalNodes - 1]['output']))
+	'''
+
+
+test_epoch()
+
+#for i in range(0, len(net.nodes())):
+#	print net.node[i]
 
 
 
