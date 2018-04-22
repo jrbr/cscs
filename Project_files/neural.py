@@ -11,7 +11,7 @@ from networkx.drawing.nx_pydot import write_dot
 import pandas as pd
 
 
-########################################################### Network Functions ####################################################################
+########################################################### General Neural Network Functions ####################################################################
 
 def grid_layout(g, layers, inLay, numInputs, numOutputs):
 
@@ -36,8 +36,7 @@ def grid_layout(g, layers, inLay, numInputs, numOutputs):
 
 def init_network(num_layers, num_in_layer, numInputs, num_outputs):
 	global net
-
-	print "initializing network"
+	net = nx.Graph()
 
 	#net.add_nodes_from(range(0,num_layers*num_in_layer + numInputs+numOutputs), summed_input=0, output=0, error=0)
 
@@ -61,7 +60,15 @@ def init_network(num_layers, num_in_layer, numInputs, num_outputs):
 		for outNode in range(0,numOutputs):
 			net.add_edge(numInputs +(num_layers - 1)*num_in_layer + hidden,  numInputs + num_layers*num_in_layer + outNode, weight = random.random() * 2 - 1)
 
-	print "initialization complete"
+
+def reset_network():
+	global net
+
+	for node in range(numInputs, len(net.nodes())):
+		for inNode, edge in net.adj[node].iteritems():
+			if(inNode < node):
+				edge['weight'] = random.random() * 2 - 1
+
 
 
 def draw_network(g, layers, inLay, numInputs, numOutputs):
@@ -147,7 +154,6 @@ def calc_error(node):
 	global net, idealOutput, outputNodes
 
 	net.node[node]['error'] = 0
-
 	if(net.node[node]['type'] == "output"):
 		net.node[node]['error'] = -(idealOutput[node] - net.node[node]['output'])
 		net.node[node]['delta'] = net.node[node]['error'] * calc_deriv(net.node[node]['output'])
@@ -177,75 +183,6 @@ def get_output_error():
 		sum += math.fabs(net.nodes[node]['error'])
 
 	return sum
-################################################### Binary Data ####################################################################
-
-def set_ideal_output():
-	return
-
-
-
-def set_inputs_binary_pair():
-	global net, numInputs
-
-	if numInputs == 2:
-		net.node[0]['output'] = math.ceil(random.random()*2 - 1)
-		net.node[1]['output'] = math.ceil(random.random()*2 - 1)
-	else:
-		print "not valid"
-
-def set_AND():
-	global net, idealOutput, totalNodes, numOutputs
-
-	if net.node[0]['output'] == 1 and net.node[1]['output'] == 1:
-		idealOutput[totalNodes - numOutputs] = 1
-	else:
-		idealOutput[totalNodes - numOutputs] = 0
-	#print idealOutput
-
-def set_OR():
-	global net, idealOutput, totalNodes, numOutputs
-
-	if net.node[0]['output'] == 1 or net.node[1]['output'] == 1:
-		idealOutput[totalNodes - numOutputs] = 1
-	else:
-		idealOutput[totalNodes - numOutputs] = 0
-	#print idealOutput
-
-def set_NOR():
-	global net, idealOutput, totalNodes, numOutputs
-
-	if not (net.node[0]['output'] == 1 or net.node[1]['output'] == 1):
-		idealOutput[totalNodes - numOutputs] = 1
-	else:
-		idealOutput[totalNodes - numOutputs] = 0
-	#print idealOutput
-
-
-def set_XOR():
-	global net, idealOutput, totalNodes, numOutputs
-
-	a = net.node[0]['output'] 
-	b = net.node[1]['output']
-	if a != b and (a == 1 or b == 1):
-		idealOutput[totalNodes - numOutputs] = 1
-	else:
-		idealOutput[totalNodes - numOutputs] = 0
-	#print idealOutput
-
-def test_epoch_binary():
-	global net, idealOutput, totalNodes, numOutputs
-	for i in range(0,2):
-		for j in range(0,2):
-			net.node[0]['output'] = i
-			net.node[1]['output'] = j
-			set_ideal_output()
-			forward_prop()
-			print("cycle: {}".format(i))
-			print("input: {} {}".format(net.node[0]['output'], net.node[1]['output']))
-			print("expected: {}".format(idealOutput[totalNodes - numOutputs]))
-			#print idealOutput
-			print("actual: {}".format(net.node[totalNodes - 1]['output']))	
-
 
 ################################################ Knowledge Level Implementation ########################################################################
 
@@ -264,7 +201,7 @@ def train_epoch_data():
 	return epoch_error/instances
 
 
-def test_epoch_data(useTesting, useTraining):
+def test_epoch_data(useTesting=True, useTraining=False, verbose=False):
 	global net, idealOutput, totalNodes, training_data, testing_data, expected_cat, predicted_cat, outputNodes
 
 	numCorrect = 0
@@ -282,11 +219,11 @@ def test_epoch_data(useTesting, useTraining):
 
 			for node in outputNodes:
 				calc_error(node)
-			epoch_error += get_output_error
+			epoch_error += get_output_error()
 
 	if useTesting:
 		for i in testing_data.index:
-			set_data_in_out(True, i)
+			set_data_in_out(False, i)
 			forward_prop()
 			if expected_cat == get_predicted_category():
 				numCorrect += 1
@@ -294,10 +231,10 @@ def test_epoch_data(useTesting, useTraining):
 
 			for node in outputNodes:
 				calc_error(node)
-			epoch_error += get_output_error
+			epoch_error += get_output_error()
 
-
-	print("{} out of {} categories predicted correctly: {}%\n Average Error per input:{}".format(numCorrect, numTested, 100.0 * numCorrect / numTested, epoch_error/numTested))
+	if verbose:
+		print("{} out of {} categories predicted correctly: {}%\n Average Error per input:{}".format(numCorrect, numTested, 100.0 * numCorrect / numTested, epoch_error/numTested))
 	return epoch_error/numTested
 
 def set_data_in_out(useTraining, i):
@@ -325,6 +262,9 @@ def set_data_output(cat):
 	global idealOutput, outputNodes, correctNode
 
 	#print "setting output"
+	if len(idealOutput) != len(outputNodes):
+		for node in outputNodes:
+			idealOutput[node] = 0
 
 	#for node in outputNodes:
 	#	idealOutput[node] = 0
@@ -386,78 +326,231 @@ def get_predicted_category():
 	return (net.node[maxVal_node]['cat'])
 
 
+################################################ analysis ########################################################################
 
+def run_iteration(max_iterations = 2000, threshold = .2):
+
+	errors = []
+	testing_errors = []
+
+	for i in range(0, max_iterations):
+		errors.append(train_epoch_data())
+		if i % 10 == 0:
+			testing_errors.append(test_epoch_data())
+		if errors[-1] < threshold:
+			break
+	return [errors, testing_errors]
+
+
+def run_pd(training_data, testing_data):
+	global net, num_layers, num_in_layer, totalNodes, outputNodes, idealOutput, learning_rate, correctNode, numInputs, num_outputs
+	training_results = []
+	testing_results = []
+	runs = 0
+
+	for layers in range(1,6):
+		for in_layer in range(1,6):
+			num_layers = layers
+			num_in_layer = in_layer * 2
+			totalNodes = numInputs + numOutputs + num_layers * num_in_layer
+			outputNodes = list(range(totalNodes - numOutputs, totalNodes))
+			init_network(num_layers, num_in_layer, numInputs, numOutputs)	
+			title = "plots\{}x{}.1_".format(layers, in_layer * 2)
+
+			for rate in range(1,4):
+
+				
+				reset_network()
+
+				idealOutput = {}
+				learning_rate = .25 * rate
+				correctNode = totalNodes - 1
+
+				results = run_iteration(1000, 0)
+				training_results.append(results[0])
+				testing_results.append(results[1])
+				runs += 1
+				print("{}/{} complete".format(runs, 100))
+			
+			#plt.figure(runs/4)
+			pd.DataFrame(training_results[-4:]).T.plot(legend=True, linewidth=1.5, colormap='Paired', ylim=(0,2), linestyle='-')
+			plt.savefig(title + "Train.png")
+			plt.close()
+			pd.DataFrame(testing_results[-4:]).T.plot(legend=True, linewidth=1.5, colormap='Paired', ylim=(0,2), linestyle='-')
+			plt.savefig(title + "Test.png")
+			plt.close()
+	return [pd.DataFrame(training_results).T, pd.DataFrame(testing_results).T]
+	#return sample_results
+
+def plot_pd_runs(training_data, testing_data):
+	sim_data = run_pd(training_data,testing_data)
+	sim_data[0].plot(legend=False, alpha=0.5, linewidth=0.5, linestyle='-')
+
+	plt.savefig('plots\{}'.format("training_compiled.png"))
+	sim_data[1].plot(legend=False, alpha=0.5, linewidth=0.5, linestyle='-')
+	plt.savefig('plots\{}'.format("testing_compiled.png"))
+	return sim_data
+
+def sample_data(training_data):
+	i = 0
+	while i < len(training_data.index):
+		
+		training_data = training_data.drop(training_data.index[i])
+		i += 1
+		'''
+		if i % 2 == 1:
+			training_data = training_data.drop(training_data.index[i])
+		else:
+			i += 1
+		'''
+	return training_data
+
+
+
+def single_run():
+	global net, num_layers, num_in_layer, totalNodes, outputNodes, idealOutput, learning_rate, correctNode, numInputs, num_outputs, numEpochs
+
+	print "pre-training results"
+	print "Training Data:"
+	test_epoch_data(False, True, True)
+	print "Testing Data"
+	test_epoch_data(True, False, True)
+
+	print "training..."
+	#draw_network(net, num_layers, num_in_layer, numInputs, numOutputs)
+
+	errors = []
+	testing_errors = []
+
+
+	for i in range(1, numEpochs + 1):
+
+		errors.append(train_epoch_data())
+		
+		testing_errors.append(test_epoch_data())
+
+		
+		if i % (numEpochs / 20) == 0:
+
+			print("{}% complete".format(1.0 * i / numEpochs * 100.0))
+
+
+		if i % 1000 == 0:
+			'''
+			print("cycle: {}".format(i))
+			print("input: {} {}".format(net.node[0]['output'], net.node[1]['output']))
+			print("expected: {}".format(idealOutput[totalNodes - numOutputs]))
+			#print idealOutput
+			print("actual: {}".format(net.node[totalNodes - 1]['output']))
+			#print("expected: {}\nactual:{}\n".format(idealOutput[totalNodes - numOutputs], net.node[totalNodes - 1]['output']))
+			'''
+
+	print"100% complete"
+
+
+	print "Performance on Training Data"
+	test_epoch_data(False, True, True)
+
+	print "Performance on Testing Data"
+	test_epoch_data(True, False, True)
+
+
+
+	print_results(True)
+
+	plt.plot(errors)
+	plt.ylabel('average Error per input')
+	plt.title('Training Perfromance')
+	plt.xlabel("number of Epochs")
+
+	plt.figure(2)
+	plt.plot(testing_errors)
+	plt.ylabel('average Error per input')
+	plt.title('Testing Perfromance')
+	plt.xlabel("number of Epochs")
+
+	plt.show()
+
+def run_monte_carlo(runs, num_layers, num_in_layer, learning_rate):
+	global net, totalNodes, outputNodes, idealOutput, correctNode, numInputs, num_outputs
+	training_results = []
+	testing_results = []
+	
+
+	totalNodes = numInputs + numOutputs + num_layers * num_in_layer
+	outputNodes = list(range(totalNodes - numOutputs, totalNodes))
+	init_network(num_layers, num_in_layer, numInputs, numOutputs)	
+	title = "MCplots\\{}x{}_{}_".format(num_layers, num_in_layer, learning_rate)
+	
+	for run in range(0,runs):
+		print run
+		reset_network()
+
+		idealOutput = {}
+		correctNode = totalNodes - 1
+
+		results = run_iteration(300, 0)
+		training_results.append(results[0])
+		testing_results.append(results[1])
+		
+		
+	#plt.figure(runs/4)
+	train_pd = pd.DataFrame(training_results).T
+	test_pd = pd.DataFrame(testing_results).T
+	train_pd.plot(legend=False, linewidth=.5, colormap='Paired', ylim=(0,2), linestyle='-')
+	plt.savefig(title + "Train.png")
+	plt.close()
+	test_pd.plot(legend=False, linewidth=.5, colormap='Paired', ylim=(0,2), linestyle='-')
+	plt.savefig(title + "Test.png")
+	plt.close()
+
+	average_ts = train_pd.fillna(0).mean(axis=1)
+	average_ts.plot(legend=False, linewidth=1, ylim=(0,2), linestyle='-')
+	plt.savefig(title + "Train_Avg.png")
+	plt.close()
+
+	average_ts = test_pd.fillna(0).mean(axis=1)
+	average_ts.plot(legend=False, linewidth=1, ylim=(0,2), linestyle='-')
+	plt.savefig(title + "test_Avg.png")
+	plt.close()
+
+	return [test_pd, train_pd]
+
+
+#################################################################  Main declarations and calls ###############################################################
+#init all values
 file = 'user_knowledge.xls'
+num_layers = 4
+num_in_layer = 10
+numInputs = 5
+numOutputs = 4
+totalNodes = numInputs + numOutputs + num_layers * num_in_layer
+outputNodes = list(range(totalNodes - numOutputs, totalNodes))
+idealOutput = {}
+learning_rate = .1
+numEpochs = 2000
+expected_cat = "very_low"
+correctNode = totalNodes - 1
+
+
 
 # Load spreadsheet
 print "loading Data..."
 training_data = pd.read_excel(file, sheetname="Training_Data")
 testing_data = pd.read_excel(file, sheetname="Test_Data")
 
-
-
-
-
-num_layers = 3
-num_in_layer = 8
-numInputs = 5
-numOutputs = 4
-totalNodes = numInputs + numOutputs + num_layers * num_in_layer
-outputNodes = list(range(totalNodes - numOutputs, totalNodes))
-print outputNodes
-idealOutput = {}
-learning_rate = .1
-numEpochs = 100
-expected_cat = "very_low"
-correctNode = totalNodes - 1
-
+# init graph
 net = nx.Graph()
 init_network(num_layers, num_in_layer, numInputs, numOutputs)
 
-errors = []
+num_in_layer = 10
+num_layers = 3
 
-print "pre-training results"
-test_epoch_data(False, True)
-
-print "training..."
-#draw_network(net, num_layers, num_in_layer, numInputs, numOutputs)
-
+single_run()
+#print "beginning sweep"
+#sim_data = plot_pd_runs(training_data, testing_data)
 
 
-for i in range(1, numEpochs + 1):
-
-	errors.append(train_epoch_data())
-	
-	if i % (numEpochs / 20) == 0:
-
-		print("{}% complete".format(1.0 * i / numEpochs * 100.0))
-
-'''
-	if i % 1000 == 0:
-		
-		print("cycle: {}".format(i))
-		print("input: {} {}".format(net.node[0]['output'], net.node[1]['output']))
-		print("expected: {}".format(idealOutput[totalNodes - numOutputs]))
-		#print idealOutput
-		print("actual: {}".format(net.node[totalNodes - 1]['output']))
-		#print("expected: {}\nactual:{}\n".format(idealOutput[totalNodes - numOutputs], net.node[totalNodes - 1]['output']))
-'''
-plt.plot(errors)
-plt.ylabel('average Error per input')
-plt.show()
-
-print"100% complete"
-
-
-print "Performance on Training Data"
-test_epoch_data(False, True)
-
-print "Performance on Testing Data"
-test_epoch_data(True, False)
-
-draw_network(net, num_layers, num_in_layer, numInputs, numOutputs)
-
-print_results(True)
 
 #for i in range(0, len(net.nodes())):
 #	print net.node[i]
