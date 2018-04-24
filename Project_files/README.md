@@ -19,5 +19,5 @@ The File is separated into 5 main sections
 
 
 * _Other Files_
-	* binaryFnctns - not necessary for current iterations. Functions used to set and run the model to classify various binary operations (and, or, xor, nor)
+	* binaryFnctns.py - not necessary for current iterations. Functions used to set and run the model to classify various binary operations (and, or, xor, nor)
 	* file.gv - an example print of the draw_network() function
