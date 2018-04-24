@@ -96,12 +96,6 @@ def draw_network(g, layers, inLay, numInputs, numOutputs):
 
 ########################################################### Learning Base ####################################################################
 
-
-def set_inputs():
-	global net, numInputs
-
-	set_inputs_binary_pair()
-
 def run_epoch():
 	global net, idealOutput, totalNodes, numOutputs
 	for i in range(0,2):
@@ -521,14 +515,14 @@ def run_monte_carlo(runs, num_layers, num_in_layer, learning_rate):
 #init all values
 file = 'user_knowledge.xls'
 num_layers = 4
-num_in_layer = 10
+num_in_layer = 4
 numInputs = 5
 numOutputs = 4
 totalNodes = numInputs + numOutputs + num_layers * num_in_layer
 outputNodes = list(range(totalNodes - numOutputs, totalNodes))
 idealOutput = {}
-learning_rate = .1
-numEpochs = 2000
+learning_rate = .5
+numEpochs = 500
 expected_cat = "very_low"
 correctNode = totalNodes - 1
 
@@ -543,17 +537,13 @@ testing_data = pd.read_excel(file, sheetname="Test_Data")
 net = nx.Graph()
 init_network(num_layers, num_in_layer, numInputs, numOutputs)
 
-num_in_layer = 10
-num_layers = 3
 
-single_run()
-#print "beginning sweep"
-#sim_data = plot_pd_runs(training_data, testing_data)
+'''uncomment the following functions to run different simulations '''
 
+#run_monte_carlo(25, num_layers, num_in_layer, learning_rate)
 
+#single_run() #number of epochs determined by numEpochs variable declared above
 
-#for i in range(0, len(net.nodes())):
-#	print net.node[i]
+#plot_pd(training_data, testing_data)
 
-
-#draw_network(net, num_layers, num_in_layer, numInputs, numOutputs)
+#test_epoch_data(True, False, True)
